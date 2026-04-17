@@ -957,7 +957,7 @@ function App() {
       ) : (
         <div className="grid">
           {visible.map(s => (
-            <div className="card" key={s.id}>
+            <div className="card" key={s.id} onClick={() => openEdit(s)} style={{ cursor: 'pointer' }}>
               <div className="card-header">
                 <div>
                   <div className="card-title">{s.title}</div>
@@ -965,10 +965,10 @@ function App() {
                 </div>
                 <span className="card-tag">{s.category}</span>
               </div>
-              <div className="card-code-wrap" onClick={() => openEdit(s)}>
+              <div className="card-code-wrap">
                 <CSSPreview code={s.code} />
               </div>
-              <div className="card-footer">
+              <div className="card-footer" onClick={e => e.stopPropagation()}>
                 <button className="btn btn-sm btn-ghost" onClick={() => openEdit(s)}>Editar</button>
                 <button
                   className={`copy-btn ${copiedId === s.id ? 'copied' : ''}`}
