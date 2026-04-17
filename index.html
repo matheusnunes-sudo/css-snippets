@@ -191,18 +191,18 @@
       box-shadow: var(--sh-card);
       overflow: hidden; display: flex; flex-direction: column;
       animation: fadeUp 600ms ease-out both;
-      transition: transform .22s ease, box-shadow .22s ease;
+      transition: transform .30s ease, box-shadow .30s ease, background .30s ease;
     }
 
     .card:hover {
       transform: translateY(-2px);
-      background: rgba(0,0,0,0.03);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06);
+      background: rgba(0,0,0,0.015);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05);
     }
     @media (prefers-color-scheme: dark) {
       .card:hover {
-        background: rgba(255,255,255,0.04);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.10);
+        background: rgba(255,255,255,0.02);
+        box-shadow: 0 6px 24px rgba(0,0,0,0.40), 0 0 0 1px rgba(255,255,255,0.08);
       }
     }
 
