@@ -185,8 +185,12 @@
       cursor: pointer; transition: all .18s;
     }
 
-    .filter-btn:hover { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+    .filter-btn:hover  { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
     .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .filter-btn[draggable="true"] { cursor: grab; }
+    .filter-btn[draggable="true"]:active { cursor: grabbing; }
+    .filter-btn.dragging  { opacity: 0.35; }
+    .filter-btn.drag-over { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); outline: 2px dashed var(--accent); outline-offset: 2px; }
 
     /* ─── Grid ───────────────────────────────────────────────── */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(296px, 1fr)); gap: 16px; }
@@ -272,7 +276,7 @@
     /* ─── Trash button ───────────────────────────────────────── */
     .trash-btn {
       position: relative;
-      padding: 13px 15px;
+      padding: 11px 13px;
       background: var(--bg-2); border: 1px solid var(--sep-2);
       border-radius: var(--r-pill); cursor: pointer; color: var(--text-2);
       display: flex; align-items: center;
@@ -486,9 +490,15 @@
     .cm-s-default .cm-bracket    { color: var(--text-2);   }
     .cm-s-default .cm-punctuation{ color: var(--text-2);   }
 
+    /* ─── Top-right fixed actions ────────────────────────────── */
+    .top-right-actions {
+      position: fixed; top: 24px; right: 24px;
+      display: flex; gap: 8px; z-index: 50;
+    }
+
     /* ─── Theme toggle ───────────────────────────────────────── */
     .theme-btn {
-      padding: 13px 15px;
+      padding: 11px 13px;
       background: var(--bg-2); border: 1px solid var(--sep-2);
       border-radius: var(--r-pill); cursor: pointer; color: var(--text-2);
       display: flex; align-items: center;
@@ -552,9 +562,15 @@
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo } = React;
 
-const STORAGE_KEY_V2    = 'css_snippets_v2';
-const STORAGE_KEY_V1    = 'css_snippets_v1';
-const STORAGE_KEY_TRASH = 'css_snippets_trash';
+const STORAGE_KEY_V2        = 'css_snippets_v2';
+const STORAGE_KEY_V1        = 'css_snippets_v1';
+const STORAGE_KEY_TRASH     = 'css_snippets_trash';
+const STORAGE_KEY_CAT_ORDER = 'css_snippets_cat_order';
+
+function loadCatOrder() {
+  try { const o = localStorage.getItem(STORAGE_KEY_CAT_ORDER); return o ? JSON.parse(o) : null; }
+  catch { return null; }
+}
 
 function loadTrash() {
   try { const t = localStorage.getItem(STORAGE_KEY_TRASH); return t ? JSON.parse(t) : []; }
@@ -948,9 +964,13 @@ function App() {
   const [copiedId,     setCopiedId]     = useState(null);
   const [isDark,       setIsDark]       = useState(() => document.documentElement.classList.contains('dark'));
   const [ctxMenu,      setCtxMenu]      = useState(null);
+  const [catOrder,     setCatOrder]     = useState(loadCatOrder);
+  const [dragCat,      setDragCat]      = useState(null);
+  const [dragOver,     setDragOver]     = useState(null);
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY_V2,    JSON.stringify(snippets)); }, [snippets]);
   useEffect(() => { localStorage.setItem(STORAGE_KEY_TRASH, JSON.stringify(trash));    }, [trash]);
+  useEffect(() => { if (catOrder) localStorage.setItem(STORAGE_KEY_CAT_ORDER, JSON.stringify(catOrder)); }, [catOrder]);
 
   const toggleTheme = () => {
     const next = !isDark;
@@ -965,10 +985,36 @@ function App() {
     return [...new Set([...defaults, ...custom])];
   }, [snippets]);
 
-  const filterCategories = useMemo(() => [
-    { value: 'all', label: 'Todos' },
-    ...allCategories.map(c => ({ value: c, label: c })),
-  ], [allCategories]);
+  const filterCategories = useMemo(() => {
+    const cats = allCategories;
+    let ordered;
+    if (catOrder) {
+      const saved  = catOrder.filter(c => cats.includes(c));
+      const newOnes = cats.filter(c => !catOrder.includes(c));
+      ordered = [...saved, ...newOnes];
+    } else {
+      ordered = cats;
+    }
+    return [
+      { value: 'all', label: 'Todos' },
+      ...ordered.map(c => ({ value: c, label: c })),
+    ];
+  }, [allCategories, catOrder]);
+
+  const handleDragStart = cat => setDragCat(cat);
+  const handleDragOver  = (e, cat) => { e.preventDefault(); setDragOver(cat); };
+  const handleDragLeave = () => setDragOver(null);
+  const handleDragEnd   = () => { setDragCat(null); setDragOver(null); };
+  const handleDrop      = targetVal => {
+    if (!dragCat || dragCat === targetVal || targetVal === 'all') return;
+    const cats = filterCategories.filter(c => c.value !== 'all').map(c => c.value);
+    const from = cats.indexOf(dragCat), to = cats.indexOf(targetVal);
+    const next = [...cats];
+    next.splice(from, 1);
+    next.splice(to, 0, dragCat);
+    setCatOrder(next);
+    setDragCat(null); setDragOver(null);
+  };
 
   const openAdd = () => {
     setEditing(null);
@@ -1045,6 +1091,16 @@ function App() {
         <p>Sua biblioteca pessoal de códigos CSS reutilizáveis.</p>
       </div>
 
+      <div className="top-right-actions">
+        <button className="theme-btn" onClick={toggleTheme} title={isDark ? 'Modo claro' : 'Modo escuro'}>
+          {isDark ? <SunIcon /> : <MoonIcon />}
+        </button>
+        <button className="trash-btn" onClick={() => setShowTrash(true)} title="Lixeira">
+          <TrashIcon />
+          {trash.length > 0 && <span className="trash-badge">{trash.length}</span>}
+        </button>
+      </div>
+
       <div className="top-bar">
         <div className="search-wrap">
           <SearchIcon />
@@ -1055,13 +1111,6 @@ function App() {
             onChange={e => setSearch(e.target.value)}
           />
         </div>
-        <button className="theme-btn" onClick={toggleTheme} title={isDark ? 'Modo claro' : 'Modo escuro'}>
-          {isDark ? <SunIcon /> : <MoonIcon />}
-        </button>
-        <button className="trash-btn" onClick={() => setShowTrash(true)} title="Lixeira">
-          <TrashIcon />
-          {trash.length > 0 && <span className="trash-badge">{trash.length}</span>}
-        </button>
         <button className="btn btn-primary" onClick={openAdd}>+ Novo Snippet</button>
       </div>
 
@@ -1069,8 +1118,14 @@ function App() {
         {filterCategories.map(c => (
           <button
             key={c.value}
-            className={`filter-btn ${filter === c.value ? 'active' : ''}`}
+            draggable={c.value !== 'all'}
+            className={`filter-btn ${filter === c.value ? 'active' : ''} ${dragCat === c.value ? 'dragging' : ''} ${dragOver === c.value ? 'drag-over' : ''}`}
             onClick={() => setFilter(c.value)}
+            onDragStart={() => handleDragStart(c.value)}
+            onDragOver={e => handleDragOver(e, c.value)}
+            onDragLeave={handleDragLeave}
+            onDrop={() => handleDrop(c.value)}
+            onDragEnd={handleDragEnd}
           >{c.label}</button>
         ))}
       </div>
