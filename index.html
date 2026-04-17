@@ -328,6 +328,62 @@
       padding-right: 36px; cursor: pointer;
     }
 
+    /* ─── Combobox ───────────────────────────────────────────── */
+    .combobox { position: relative; }
+
+    .combobox-input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg-2);
+      border: 1px solid var(--sep-2); border-radius: var(--r-input);
+      color: var(--text); font-size: 15px; font-family: var(--font);
+      outline: none; transition: border-color .18s, box-shadow .18s;
+    }
+
+    .combobox-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-bg);
+    }
+
+    .combobox-input::placeholder { color: var(--text-3); }
+
+    .combobox-dropdown {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: var(--bg-3);
+      border: 1px solid var(--sep-2); border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+      overflow: hidden; z-index: 200;
+      animation: fadeUp 180ms ease-out both;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .combobox-dropdown {
+        box-shadow: 0 8px 32px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.08);
+      }
+    }
+
+    .combobox-item {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 11px 14px;
+      background: none; border: none;
+      color: var(--text); font-size: 14px; font-family: var(--font);
+      text-align: left; cursor: pointer;
+      transition: background .12s;
+    }
+
+    .combobox-item:hover { background: var(--accent-bg); color: var(--accent); }
+
+    .combobox-item.is-new {
+      color: var(--accent);
+      border-top: 1px solid var(--sep);
+      font-weight: 500;
+    }
+
+    .combobox-item-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--sep-2); flex-shrink: 0;
+    }
+
     /* ─── CodeMirror overrides ───────────────────────────────── */
     .CodeMirror {
       font-family: var(--font-mono) !important;
@@ -396,7 +452,7 @@
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useRef, useMemo } = React;
 
 const STORAGE_KEY_V2 = 'css_snippets_v2';
 const STORAGE_KEY_V1 = 'css_snippets_v1';
@@ -589,6 +645,60 @@ function SearchIcon() {
   );
 }
 
+/* ── CategoryCombobox ────────────────────────────────────── */
+
+function CategoryCombobox({ value, onChange, categories }) {
+  const [open, setOpen]   = useState(false);
+  const [input, setInput] = useState(value);
+  const wrapRef           = useRef(null);
+
+  useEffect(() => { setInput(value); }, [value]);
+
+  useEffect(() => {
+    const close = e => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, []);
+
+  const filtered     = categories.filter(c => c.toLowerCase().includes(input.toLowerCase()));
+  const isNew        = input.trim() && !categories.some(c => c.toLowerCase() === input.trim().toLowerCase());
+
+  const select = cat => { setInput(cat); onChange(cat); setOpen(false); };
+
+  const handleChange = e => {
+    setInput(e.target.value);
+    onChange(e.target.value);
+    setOpen(true);
+  };
+
+  return (
+    <div className="combobox" ref={wrapRef}>
+      <input
+        className="combobox-input"
+        value={input}
+        placeholder="Selecione ou digite uma nova categoria"
+        onChange={handleChange}
+        onFocus={() => setOpen(true)}
+      />
+      {open && (filtered.length > 0 || isNew) && (
+        <div className="combobox-dropdown">
+          {filtered.map(cat => (
+            <button key={cat} className="combobox-item" onMouseDown={() => select(cat)}>
+              <span className="combobox-item-dot" />
+              {cat}
+            </button>
+          ))}
+          {isNew && (
+            <button className="combobox-item is-new" onMouseDown={() => select(input.trim())}>
+              + Criar categoria "{input.trim()}"
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── App ─────────────────────────────────────────────────── */
 
 function App() {
@@ -603,6 +713,17 @@ function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(snippets));
   }, [snippets]);
+
+  const allCategories = useMemo(() => {
+    const defaults = CATEGORIES.filter(c => c.value !== 'all').map(c => c.value);
+    const custom   = snippets.map(s => s.category).filter(Boolean);
+    return [...new Set([...defaults, ...custom])];
+  }, [snippets]);
+
+  const filterCategories = useMemo(() => [
+    { value: 'all', label: 'Todos' },
+    ...allCategories.map(c => ({ value: c, label: c })),
+  ], [allCategories]);
 
   const openAdd = () => {
     setEditing(null);
@@ -667,7 +788,7 @@ function App() {
       </div>
 
       <div className="filters">
-        {CATEGORIES.map(c => (
+        {filterCategories.map(c => (
           <button
             key={c.value}
             className={`filter-btn ${filter === c.value ? 'active' : ''}`}
@@ -737,11 +858,11 @@ function App() {
 
             <div className="field">
               <label>Categoria</label>
-              <select value={form.category} onChange={e => setForm(f => ({...f, category: e.target.value}))}>
-                {CATEGORIES.filter(c => c.value !== 'all').map(c => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
-                ))}
-              </select>
+              <CategoryCombobox
+                value={form.category}
+                onChange={cat => setForm(f => ({...f, category: cat}))}
+                categories={allCategories}
+              />
             </div>
 
             <div className="field">
