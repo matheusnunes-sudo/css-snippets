@@ -8,6 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
+  <script>
+    (function(){
+      var s = localStorage.getItem('theme');
+      var sys = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (s === 'dark' || (!s && sys)) document.documentElement.classList.add('dark');
+    })();
+  </script>
+
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -54,8 +62,7 @@
       --syn-com:  #aeaeb2;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
+    html.dark {
         --bg:       #000000;
         --bg-2:     #1c1c1e;
         --bg-3:     #2c2c2e;
@@ -81,7 +88,6 @@
         --syn-num:  #d9c97a;
         --syn-at:   #2997ff;
         --syn-com:  #636366;
-      }
     }
 
     /* ─── Reset ──────────────────────────────────────────────── */
@@ -198,11 +204,9 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 24px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
     }
-    @media (prefers-color-scheme: dark) {
-      .card:hover {
-        background: rgba(255,255,255,0.035);
-        box-shadow: 0 6px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.09);
-      }
+    html.dark .card:hover {
+      background: rgba(255,255,255,0.035);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.09);
     }
 
     .card:nth-child(1)  { animation-delay:   0ms; }
@@ -406,10 +410,8 @@
       animation: fadeUp 180ms ease-out both;
     }
 
-    @media (prefers-color-scheme: dark) {
-      .combobox-dropdown {
-        box-shadow: 0 8px 32px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.08);
-      }
+    html.dark .combobox-dropdown {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.08);
     }
 
     .combobox-item {
@@ -482,6 +484,51 @@
     .cm-s-default .cm-operator   { color: var(--text-2);   }
     .cm-s-default .cm-bracket    { color: var(--text-2);   }
     .cm-s-default .cm-punctuation{ color: var(--text-2);   }
+
+    /* ─── Theme toggle ───────────────────────────────────────── */
+    .theme-btn {
+      padding: 13px 15px;
+      background: var(--bg-2); border: 1px solid var(--sep-2);
+      border-radius: var(--r-pill); cursor: pointer; color: var(--text-2);
+      display: flex; align-items: center;
+      transition: all .18s;
+    }
+    .theme-btn:hover { color: var(--text); background: var(--bg-3); }
+
+    /* ─── Context menu ───────────────────────────────────────── */
+    .ctx-overlay { position: fixed; inset: 0; z-index: 200; }
+
+    .ctx-menu {
+      position: fixed; z-index: 201;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--sep-2);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+      padding: 5px; min-width: 190px;
+      animation: ctxIn 140ms ease-out both;
+    }
+    html.dark .ctx-menu {
+      background: rgba(44,44,46,0.94);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.08);
+    }
+    @keyframes ctxIn {
+      from { opacity: 0; transform: scale(0.94); }
+      to   { opacity: 1; transform: scale(1);    }
+    }
+    .ctx-item {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 9px 12px;
+      background: none; border: none;
+      color: var(--text); font-size: 14px; font-family: var(--font);
+      text-align: left; cursor: pointer; border-radius: 9px;
+      transition: background .1s;
+    }
+    .ctx-item:hover { background: var(--accent-bg); color: var(--accent); }
+    .ctx-item.danger { color: var(--danger); }
+    .ctx-item.danger:hover { background: var(--danger-bg); color: var(--danger); }
+    .ctx-sep { height: 1px; background: var(--sep); margin: 4px 6px; }
 
     /* ─── Animations ─────────────────────────────────────────── */
     @keyframes fadeUp {
@@ -711,6 +758,25 @@ function SearchIcon() {
   );
 }
 
+/* ── Theme icons ─────────────────────────────────────────── */
+
+function SunIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <circle cx="8" cy="8" r="3" />
+      <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M11.89 4.11l1.06-1.06M3.05 12.95l1.06-1.06" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z" />
+    </svg>
+  );
+}
+
 /* ── TrashIcon ───────────────────────────────────────────── */
 
 function TrashIcon() {
@@ -772,6 +838,44 @@ function TrashModal({ trash, onRestore, onDelete, onClear, onClose }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ── ContextMenu ─────────────────────────────────────────── */
+
+function ContextMenu({ x, y, snippet, onEdit, onDuplicate, onCopy, onDelete, onClose }) {
+  useEffect(() => {
+    const handler = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, []);
+
+  const style = {
+    left: Math.min(x, window.innerWidth  - 210),
+    top:  Math.min(y, window.innerHeight - 220),
+  };
+
+  const run = fn => { fn(); onClose(); };
+
+  return (
+    <>
+      <div className="ctx-overlay" onMouseDown={onClose} />
+      <div className="ctx-menu" style={style}>
+        <button className="ctx-item" onMouseDown={() => run(() => onEdit(snippet))}>
+          ✏️ &nbsp;Editar
+        </button>
+        <button className="ctx-item" onMouseDown={() => run(() => onDuplicate(snippet))}>
+          ⧉ &nbsp;Duplicar
+        </button>
+        <button className="ctx-item" onMouseDown={() => run(() => onCopy(snippet))}>
+          ⌘ &nbsp;Copiar CSS
+        </button>
+        <div className="ctx-sep" />
+        <button className="ctx-item danger" onMouseDown={() => run(() => onDelete(snippet.id))}>
+          🗑 &nbsp;Excluir
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -841,9 +945,18 @@ function App() {
   const [editing,      setEditing]      = useState(null);
   const [form,         setForm]         = useState({ title:'', description:'', category:'Outro', code:'' });
   const [copiedId,     setCopiedId]     = useState(null);
+  const [isDark,       setIsDark]       = useState(() => document.documentElement.classList.contains('dark'));
+  const [ctxMenu,      setCtxMenu]      = useState(null);
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY_V2,    JSON.stringify(snippets)); }, [snippets]);
   useEffect(() => { localStorage.setItem(STORAGE_KEY_TRASH, JSON.stringify(trash));    }, [trash]);
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+  };
 
   const allCategories = useMemo(() => {
     const defaults = CATEGORIES.filter(c => c.value !== 'all').map(c => c.value);
@@ -893,9 +1006,19 @@ function App() {
     setTrash(prev => prev.filter(s => s.id !== id));
   };
 
-  const permanentDelete = id => setTrash(prev => prev.filter(s => s.id !== id));
+  const permanentDelete = id  => setTrash(prev => prev.filter(s => s.id !== id));
   const clearTrash      = ()  => setTrash([]);
   const format          = ()  => setForm(f => ({ ...f, code: autoFormat(f.code) }));
+
+  const duplicate = s => {
+    setSnippets(prev => {
+      const idx = prev.findIndex(x => x.id === s.id);
+      const copy = { ...s, id: Date.now(), title: s.title + ' (cópia)' };
+      const next = [...prev];
+      next.splice(idx + 1, 0, copy);
+      return next;
+    });
+  };
 
   const copy = snippet => {
     navigator.clipboard.writeText(snippet.code).then(() => {
@@ -931,6 +1054,9 @@ function App() {
             onChange={e => setSearch(e.target.value)}
           />
         </div>
+        <button className="theme-btn" onClick={toggleTheme} title={isDark ? 'Modo claro' : 'Modo escuro'}>
+          {isDark ? <SunIcon /> : <MoonIcon />}
+        </button>
         <button className="trash-btn" onClick={() => setShowTrash(true)} title="Lixeira">
           <TrashIcon />
           {trash.length > 0 && <span className="trash-badge">{trash.length}</span>}
@@ -957,7 +1083,12 @@ function App() {
       ) : (
         <div className="grid">
           {visible.map(s => (
-            <div className="card" key={s.id} onClick={() => openEdit(s)} style={{ cursor: 'pointer' }}>
+            <div
+              className="card" key={s.id}
+              style={{ cursor: 'pointer' }}
+              onClick={() => openEdit(s)}
+              onContextMenu={e => { e.preventDefault(); setCtxMenu({ x: e.clientX, y: e.clientY, snippet: s }); }}
+            >
               <div className="card-header">
                 <div>
                   <div className="card-title">{s.title}</div>
@@ -980,6 +1111,17 @@ function App() {
             </div>
           ))}
         </div>
+      )}
+
+      {ctxMenu && (
+        <ContextMenu
+          x={ctxMenu.x} y={ctxMenu.y} snippet={ctxMenu.snippet}
+          onEdit={openEdit}
+          onDuplicate={duplicate}
+          onCopy={copy}
+          onDelete={remove}
+          onClose={() => setCtxMenu(null)}
+        />
       )}
 
       {showTrash && (
