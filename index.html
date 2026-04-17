@@ -194,9 +194,16 @@
       transition: transform .22s ease, box-shadow .22s ease;
     }
 
-    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06); }
+    .card:hover {
+      transform: translateY(-2px);
+      background: rgba(0,0,0,0.03);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06);
+    }
     @media (prefers-color-scheme: dark) {
-      .card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.10); }
+      .card:hover {
+        background: rgba(255,255,255,0.04);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.10);
+      }
     }
 
     .card:nth-child(1)  { animation-delay:   0ms; }
@@ -219,13 +226,7 @@
       white-space: nowrap; flex-shrink: 0;
     }
 
-    .card-code-wrap {
-      flex: 1; padding: 6px 22px; overflow: hidden;
-      cursor: pointer; border-radius: 10px; margin: 0 10px;
-      transition: background .15s;
-    }
-    .card-code-wrap:hover { background: var(--accent-bg); }
-    .card-code-wrap.active { background: var(--accent-bg); }
+    .card-code-wrap { flex: 1; padding: 6px 22px; overflow: hidden; }
 
     /* Card syntax highlight */
     .card-code {
