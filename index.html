@@ -841,16 +841,9 @@ function App() {
   const [editing,      setEditing]      = useState(null);
   const [form,         setForm]         = useState({ title:'', description:'', category:'Outro', code:'' });
   const [copiedId,     setCopiedId]     = useState(null);
-  const [activeCardId, setActiveCardId] = useState(null);
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY_V2,    JSON.stringify(snippets)); }, [snippets]);
   useEffect(() => { localStorage.setItem(STORAGE_KEY_TRASH, JSON.stringify(trash));    }, [trash]);
-
-  useEffect(() => {
-    const clear = e => { if (!e.target.closest('[data-card]')) setActiveCardId(null); };
-    document.addEventListener('click', clear);
-    return () => document.removeEventListener('click', clear);
-  }, []);
 
   const allCategories = useMemo(() => {
     const defaults = CATEGORIES.filter(c => c.value !== 'all').map(c => c.value);
@@ -964,7 +957,7 @@ function App() {
       ) : (
         <div className="grid">
           {visible.map(s => (
-            <div className="card" key={s.id} data-card={s.id}>
+            <div className="card" key={s.id}>
               <div className="card-header">
                 <div>
                   <div className="card-title">{s.title}</div>
@@ -972,16 +965,10 @@ function App() {
                 </div>
                 <span className="card-tag">{s.category}</span>
               </div>
-              <div
-                className={`card-code-wrap ${activeCardId === s.id ? 'active' : ''}`}
-                onClick={e => { e.stopPropagation(); setActiveCardId(activeCardId === s.id ? null : s.id); }}
-              >
+              <div className="card-code-wrap" onClick={() => openEdit(s)}>
                 <CSSPreview code={s.code} />
               </div>
               <div className="card-footer">
-                {activeCardId === s.id && (
-                  <button className="btn btn-sm btn-danger-ghost btn-delete" onClick={() => remove(s.id)}>Excluir</button>
-                )}
                 <button className="btn btn-sm btn-ghost" onClick={() => openEdit(s)}>Editar</button>
                 <button
                   className={`copy-btn ${copiedId === s.id ? 'copied' : ''}`}
@@ -1050,6 +1037,13 @@ function App() {
             </div>
 
             <div className="modal-actions">
+              {editing && (
+                <button
+                  className="btn btn-sm btn-danger-ghost"
+                  style={{ marginRight: 'auto' }}
+                  onClick={() => { remove(editing); setShowModal(false); }}
+                >Excluir snippet</button>
+              )}
               <button className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancelar</button>
               <button className="btn btn-primary" onClick={save}>
                 {editing ? 'Salvar' : 'Adicionar'}
