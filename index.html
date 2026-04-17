@@ -1,426 +1,304 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CSS Snippets</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+
   <style>
     /* ─── Tokens ─────────────────────────────────────────────── */
     :root {
-      --font: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Inter', 'DM Sans', BlinkMacSystemFont, sans-serif;
-      --font-mono: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+      --font:     -apple-system, 'SF Pro Display', 'SF Pro Text', 'Inter', 'DM Sans', BlinkMacSystemFont, sans-serif;
+      --font-mono:'SF Mono', 'Fira Code', 'Menlo', monospace;
 
-      --bg:          #ffffff;
-      --bg-2:        #f5f5f7;
-      --bg-3:        #ffffff;
-      --bg-4:        #f5f5f7;
-      --text:        #1d1d1f;
-      --text-2:      #6e6e73;
-      --text-3:      #aeaeb2;
-      --separator:   rgba(0, 0, 0, 0.08);
-      --separator-2: rgba(0, 0, 0, 0.14);
-      --accent:      #0066cc;
-      --accent-bg:   rgba(0, 102, 204, 0.08);
-      --accent-bg2:  rgba(0, 102, 204, 0.14);
-      --danger:      #ff3b30;
-      --danger-bg:   rgba(255, 59, 48, 0.07);
-      --success:     #34c759;
-      --success-bg:  rgba(52, 199, 89, 0.08);
-      --shadow-card: 0 2px 16px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
-      --shadow-modal:0 24px 80px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.06);
-      --radius-card: 20px;
-      --radius-pill: 9999px;
-      --radius-input:12px;
+      --bg:       #ffffff;
+      --bg-2:     #f5f5f7;
+      --bg-3:     #ffffff;
+      --text:     #1d1d1f;
+      --text-2:   #6e6e73;
+      --text-3:   #aeaeb2;
+      --sep:      rgba(0,0,0,0.08);
+      --sep-2:    rgba(0,0,0,0.14);
+      --accent:   #0066cc;
+      --accent-bg:rgba(0,102,204,0.08);
+      --accent-b2:rgba(0,102,204,0.16);
+      --danger:   #ff3b30;
+      --danger-bg:rgba(255,59,48,0.07);
+      --success:  #34c759;
+      --success-bg:rgba(52,199,89,0.08);
+      --sh-card:  0 2px 16px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+      --sh-modal: 0 24px 80px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.06);
+      --r-card:   20px;
+      --r-pill:   9999px;
+      --r-input:  12px;
+
+      /* syntax */
+      --syn-sel:  #0066cc;
+      --syn-prop: #6940a5;
+      --syn-val:  #067b50;
+      --syn-str:  #c41a16;
+      --syn-num:  #1c00cf;
+      --syn-at:   #0066cc;
+      --syn-com:  #aeaeb2;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg:          #000000;
-        --bg-2:        #1c1c1e;
-        --bg-3:        #2c2c2e;
-        --bg-4:        #3a3a3c;
-        --text:        #f5f5f7;
-        --text-2:      #86868b;
-        --text-3:      #636366;
-        --separator:   rgba(255,255,255,0.08);
-        --separator-2: rgba(255,255,255,0.14);
-        --accent:      #2997ff;
-        --accent-bg:   rgba(41,151,255,0.10);
-        --accent-bg2:  rgba(41,151,255,0.18);
-        --danger:      #ff453a;
-        --danger-bg:   rgba(255,69,58,0.10);
-        --success:     #30d158;
-        --success-bg:  rgba(48,209,88,0.10);
-        --shadow-card: 0 0 0 1px rgba(255,255,255,0.06);
-        --shadow-modal:0 24px 80px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.08);
+        --bg:       #000000;
+        --bg-2:     #1c1c1e;
+        --bg-3:     #2c2c2e;
+        --text:     #f5f5f7;
+        --text-2:   #86868b;
+        --text-3:   #636366;
+        --sep:      rgba(255,255,255,0.08);
+        --sep-2:    rgba(255,255,255,0.14);
+        --accent:   #2997ff;
+        --accent-bg:rgba(41,151,255,0.10);
+        --accent-b2:rgba(41,151,255,0.20);
+        --danger:   #ff453a;
+        --danger-bg:rgba(255,69,58,0.10);
+        --success:  #30d158;
+        --success-bg:rgba(48,209,88,0.10);
+        --sh-card:  0 0 0 1px rgba(255,255,255,0.06);
+        --sh-modal: 0 24px 80px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.08);
+
+        --syn-sel:  #2997ff;
+        --syn-prop: #bf8fff;
+        --syn-val:  #5ac8fa;
+        --syn-str:  #ff8375;
+        --syn-num:  #d9c97a;
+        --syn-at:   #2997ff;
+        --syn-com:  #636366;
       }
     }
 
     /* ─── Reset ──────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
 
     body {
       font-family: var(--font);
       font-size: 17px;
-      line-height: 1.47059;
+      line-height: 1.47;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
     /* ─── Layout ─────────────────────────────────────────────── */
-    #root {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 80px 24px;
-    }
+    #root { max-width: 980px; margin: 0 auto; padding: 80px 24px; }
 
-    /* ─── Hero header ────────────────────────────────────────── */
-    .hero {
-      text-align: center;
-      margin-bottom: 56px;
-      animation: fadeUp 600ms ease-out both;
-    }
+    /* ─── Hero ───────────────────────────────────────────────── */
+    .hero { text-align: center; margin-bottom: 56px; animation: fadeUp 600ms ease-out both; }
 
     .hero h1 {
       font-size: clamp(2rem, 5vw, 3rem);
       font-weight: 700;
       letter-spacing: -0.03em;
-      color: var(--text);
       line-height: 1.08;
       margin-bottom: 12px;
     }
 
-    .hero p {
-      font-size: 19px;
-      color: var(--text-2);
-      font-weight: 400;
-      letter-spacing: -0.01em;
-    }
+    .hero p { font-size: 19px; color: var(--text-2); letter-spacing: -0.01em; }
 
     /* ─── Top bar ────────────────────────────────────────────── */
-    .top-bar {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 32px;
-      animation: fadeUp 600ms 80ms ease-out both;
-    }
+    .top-bar { display: flex; gap: 12px; margin-bottom: 32px; animation: fadeUp 600ms 80ms ease-out both; }
 
-    .search-wrap {
-      flex: 1;
-      position: relative;
-    }
+    .search-wrap { flex: 1; position: relative; }
 
     .search-icon {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-3);
-      pointer-events: none;
-      width: 16px;
-      height: 16px;
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--text-3); pointer-events: none; width: 16px; height: 16px;
     }
 
     .search-input {
       width: 100%;
       padding: 13px 16px 13px 44px;
       background: var(--bg-2);
-      border: 1px solid var(--separator-2);
-      border-radius: var(--radius-input);
+      border: 1px solid var(--sep-2);
+      border-radius: var(--r-input);
       color: var(--text);
       font-size: 15px;
       font-family: var(--font);
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color .2s, box-shadow .2s;
     }
 
-    .search-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-bg);
-    }
-
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
     .search-input::placeholder { color: var(--text-3); }
 
     /* ─── Buttons ────────────────────────────────────────────── */
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      display: inline-flex; align-items: center; gap: 6px;
       padding: 13px 22px;
-      border-radius: var(--radius-pill);
-      border: none;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      font-family: var(--font);
+      border-radius: var(--r-pill);
+      border: none; cursor: pointer;
+      font-size: 15px; font-weight: 600; font-family: var(--font);
       letter-spacing: -0.01em;
-      transition: opacity 0.15s, transform 0.12s;
+      transition: opacity .15s, transform .12s;
       white-space: nowrap;
     }
 
-    .btn:hover  { opacity: 0.84; }
-    .btn:active { transform: scale(0.97); opacity: 0.72; }
+    .btn:hover  { opacity: .84; }
+    .btn:active { transform: scale(.97); opacity: .72; }
 
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
+    .btn-primary       { background: var(--accent); color: #fff; }
+    .btn-ghost         { background: var(--bg-2); color: var(--text-2); border: 1px solid var(--sep-2); }
+    .btn-sm            { padding: 7px 14px; font-size: 13px; }
+    .btn-danger-ghost  { background: var(--danger-bg); color: var(--danger); border: none; }
 
-    .btn-ghost {
-      background: var(--bg-2);
-      color: var(--text-2);
-      border: 1px solid var(--separator-2);
+    .btn-format {
+      font-size: 12px; font-weight: 500; color: var(--accent);
+      background: none; border: none; cursor: pointer; padding: 0;
+      font-family: var(--font);
     }
+    .btn-format:hover { opacity: .7; }
 
-    .btn-sm {
-      padding: 7px 14px;
-      font-size: 13px;
-    }
-
-    .btn-danger-ghost {
-      background: var(--danger-bg);
-      color: var(--danger);
-      border: none;
-    }
-
-    /* ─── Category filters ───────────────────────────────────── */
-    .filters {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 40px;
-      animation: fadeUp 600ms 140ms ease-out both;
-    }
+    /* ─── Filters ────────────────────────────────────────────── */
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px; animation: fadeUp 600ms 140ms ease-out both; }
 
     .filter-btn {
       padding: 7px 16px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--separator-2);
-      background: transparent;
-      color: var(--text-2);
-      font-size: 14px;
-      font-weight: 500;
-      font-family: var(--font);
-      cursor: pointer;
-      transition: all 0.18s;
+      border-radius: var(--r-pill); border: 1px solid var(--sep-2);
+      background: transparent; color: var(--text-2);
+      font-size: 14px; font-weight: 500; font-family: var(--font);
+      cursor: pointer; transition: all .18s;
     }
 
-    .filter-btn:hover {
-      background: var(--accent-bg);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .filter-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
+    .filter-btn:hover { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
     /* ─── Grid ───────────────────────────────────────────────── */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
-      gap: 16px;
-    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(296px, 1fr)); gap: 16px; }
 
     /* ─── Card ───────────────────────────────────────────────── */
     .card {
       background: var(--bg-3);
-      border-radius: var(--radius-card);
-      box-shadow: var(--shadow-card);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      border-radius: var(--r-card);
+      box-shadow: var(--sh-card);
+      overflow: hidden; display: flex; flex-direction: column;
       animation: fadeUp 600ms ease-out both;
-      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      transition: transform .22s ease, box-shadow .22s ease;
     }
 
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06);
-    }
-
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06); }
     @media (prefers-color-scheme: dark) {
-      .card:hover {
-        box-shadow: 0 8px 32px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.10);
-      }
+      .card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.10); }
     }
 
-    .card-header {
-      padding: 22px 22px 14px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
+    .card:nth-child(1)  { animation-delay:   0ms; }
+    .card:nth-child(2)  { animation-delay:  50ms; }
+    .card:nth-child(3)  { animation-delay: 100ms; }
+    .card:nth-child(4)  { animation-delay: 150ms; }
+    .card:nth-child(5)  { animation-delay: 200ms; }
+    .card:nth-child(6)  { animation-delay: 250ms; }
+    .card:nth-child(7)  { animation-delay: 300ms; }
+    .card:nth-child(8)  { animation-delay: 350ms; }
 
-    .card-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text);
-      letter-spacing: -0.02em;
-      line-height: 1.3;
-    }
-
-    .card-description {
-      font-size: 13px;
-      color: var(--text-2);
-      margin-top: 4px;
-      line-height: 1.4;
-    }
+    .card-header { padding: 22px 22px 14px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .card-title  { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; }
+    .card-desc   { font-size: 13px; color: var(--text-2); margin-top: 4px; }
 
     .card-tag {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
-      background: var(--accent-bg);
-      color: var(--accent);
-      white-space: nowrap;
-      flex-shrink: 0;
+      font-size: 12px; font-weight: 500;
+      padding: 4px 10px; border-radius: var(--r-pill);
+      background: var(--accent-bg); color: var(--accent);
+      white-space: nowrap; flex-shrink: 0;
     }
 
-    .card-code-wrap {
-      flex: 1;
-      padding: 0 22px;
-    }
+    .card-code-wrap { flex: 1; padding: 0 22px; overflow: hidden; }
 
+    /* Card syntax highlight */
     .card-code {
       font-family: var(--font-mono);
-      font-size: 13px;
-      color: var(--text-2);
-      white-space: pre-wrap;
-      line-height: 1.6;
-      max-height: 100px;
-      overflow: hidden;
+      font-size: 12.5px; line-height: 1.65;
+      max-height: 130px; overflow: hidden;
       mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+      white-space: pre;
     }
 
-    .card-footer {
-      padding: 16px 22px 20px;
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-      align-items: center;
-    }
+    .card-code .hl-sel  { color: var(--syn-sel); }
+    .card-code .hl-prop { color: var(--syn-prop); }
+    .card-code .hl-val  { color: var(--syn-val); }
+    .card-code .hl-str  { color: var(--syn-str); }
+    .card-code .hl-num  { color: var(--syn-num); }
+    .card-code .hl-at   { color: var(--syn-at); }
+    .card-code .hl-com  { color: var(--syn-com); font-style: italic; }
+    .card-code .hl-punc { color: var(--text-2); }
+
+    .card-footer { padding: 16px 22px 20px; display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
 
     .copy-btn {
       padding: 8px 18px;
-      background: var(--accent-bg);
-      border: none;
-      color: var(--accent);
-      border-radius: var(--radius-pill);
-      font-size: 14px;
-      font-weight: 600;
-      font-family: var(--font);
-      cursor: pointer;
-      transition: all 0.18s;
+      background: var(--accent-bg); border: none;
+      color: var(--accent); border-radius: var(--r-pill);
+      font-size: 14px; font-weight: 600; font-family: var(--font);
+      cursor: pointer; transition: all .18s;
     }
-
-    .copy-btn:hover  { background: var(--accent-bg2); }
-    .copy-btn:active { transform: scale(0.96); }
-
-    .copy-btn.copied {
-      background: var(--success-bg);
-      color: var(--success);
-    }
+    .copy-btn:hover  { background: var(--accent-b2); }
+    .copy-btn:active { transform: scale(.96); }
+    .copy-btn.copied { background: var(--success-bg); color: var(--success); }
 
     /* ─── Empty state ────────────────────────────────────────── */
-    .empty {
-      text-align: center;
-      padding: 80px 24px;
-      animation: fadeUp 600ms ease-out both;
-    }
+    .empty { text-align: center; padding: 80px 24px; animation: fadeUp 600ms ease-out both; }
+    .empty-icon { font-size: 3rem; margin-bottom: 16px; display: block; }
+    .empty h3 { font-size: 21px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .empty p  { font-size: 15px; color: var(--text-2); }
 
-    .empty-icon {
-      font-size: 3rem;
-      margin-bottom: 16px;
-      display: block;
-    }
-
-    .empty h3 {
-      font-size: 21px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-
-    .empty p {
-      font-size: 15px;
-      color: var(--text-2);
-    }
-
-    /* ─── Modal overlay ──────────────────────────────────────── */
+    /* ─── Overlay ────────────────────────────────────────────── */
     .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.40);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 24px;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.40);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; padding: 24px;
       animation: overlayIn 220ms ease-out both;
     }
 
-    @keyframes overlayIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
+    @keyframes overlayIn { from { opacity:0; } to { opacity:1; } }
 
     /* ─── Modal ──────────────────────────────────────────────── */
     .modal {
       background: var(--bg-3);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-radius: 24px;
-      box-shadow: var(--shadow-modal);
-      padding: 32px;
-      width: 100%;
-      max-width: 540px;
-      animation: modalIn 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 24px; box-shadow: var(--sh-modal);
+      padding: 32px; width: 100%; max-width: 560px;
+      animation: modalIn 280ms cubic-bezier(.34,1.56,.64,1) both;
     }
 
     @keyframes modalIn {
-      from { opacity: 0; transform: scale(0.94) translateY(16px); }
-      to   { opacity: 1; transform: scale(1)    translateY(0);    }
+      from { opacity:0; transform: scale(.94) translateY(16px); }
+      to   { opacity:1; transform: scale(1)   translateY(0); }
     }
 
-    .modal-title {
-      font-size: 21px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--text);
-      margin-bottom: 24px;
-    }
+    .modal-title { font-size: 21px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 24px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
 
-    /* ─── Form fields ────────────────────────────────────────── */
-    .field {
-      margin-bottom: 16px;
-    }
+    /* ─── Fields ─────────────────────────────────────────────── */
+    .field { margin-bottom: 16px; }
 
-    .field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-2);
+    .field-header {
+      display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+    }
+
+    .field label, .field-label {
+      display: block;
+      font-size: 12px; font-weight: 600; color: var(--text-2);
+      text-transform: uppercase; letter-spacing: 0.06em;
     }
 
     .field input,
@@ -429,13 +307,9 @@
       width: 100%;
       padding: 12px 14px;
       background: var(--bg-2);
-      border: 1px solid var(--separator-2);
-      border-radius: var(--radius-input);
-      color: var(--text);
-      font-size: 15px;
-      font-family: var(--font);
-      outline: none;
-      transition: border-color 0.18s, box-shadow 0.18s;
+      border: 1px solid var(--sep-2); border-radius: var(--r-input);
+      color: var(--text); font-size: 15px; font-family: var(--font);
+      outline: none; transition: border-color .18s, box-shadow .18s;
       appearance: none;
     }
 
@@ -446,47 +320,68 @@
       box-shadow: 0 0 0 3px var(--accent-bg);
     }
 
-    .field input::placeholder,
-    .field textarea::placeholder { color: var(--text-3); }
-
-    .field textarea {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      resize: vertical;
-      min-height: 128px;
-      line-height: 1.6;
-    }
+    .field input::placeholder, .field textarea::placeholder { color: var(--text-3); }
 
     .field select {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2386868b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      padding-right: 36px;
-      cursor: pointer;
+      background-repeat: no-repeat; background-position: right 14px center;
+      padding-right: 36px; cursor: pointer;
     }
 
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-top: 24px;
+    /* ─── CodeMirror overrides ───────────────────────────────── */
+    .CodeMirror {
+      font-family: var(--font-mono) !important;
+      font-size: 13.5px !important;
+      line-height: 1.65 !important;
+      height: 230px;
+      border-radius: var(--r-input) !important;
+      background: var(--bg-2) !important;
+      color: var(--text) !important;
+      border: 1px solid var(--sep-2);
+      transition: border-color .18s, box-shadow .18s;
     }
+
+    .CodeMirror-focused {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 3px var(--accent-bg) !important;
+      outline: none !important;
+    }
+
+    .CodeMirror-scroll   { padding: 4px 0; }
+
+    .CodeMirror-gutters {
+      background: var(--bg-2) !important;
+      border-right: 1px solid var(--sep) !important;
+    }
+
+    .CodeMirror-linenumber { color: var(--text-3) !important; padding: 0 10px 0 6px !important; }
+    .CodeMirror-cursor     { border-left-color: var(--text) !important; }
+    .CodeMirror-selected   { background: var(--accent-b2) !important; }
+
+    /* Light mode tokens */
+    .cm-s-default .cm-tag        { color: var(--syn-sel);  }
+    .cm-s-default .cm-property   { color: var(--syn-prop); }
+    .cm-s-default .cm-qualifier  { color: var(--syn-prop); }
+    .cm-s-default .cm-builtin    { color: var(--syn-sel);  }
+    .cm-s-default .cm-keyword    { color: var(--syn-at);   }
+    .cm-s-default .cm-def        { color: var(--syn-sel);  }
+    .cm-s-default .cm-atom       { color: var(--syn-val);  }
+    .cm-s-default .cm-number     { color: var(--syn-num);  }
+    .cm-s-default .cm-string     { color: var(--syn-str);  }
+    .cm-s-default .cm-string-2   { color: var(--syn-str);  }
+    .cm-s-default .cm-variable   { color: var(--syn-prop); }
+    .cm-s-default .cm-variable-2 { color: var(--syn-sel);  }
+    .cm-s-default .cm-comment    { color: var(--syn-com); font-style: italic; }
+    .cm-s-default .cm-meta       { color: var(--syn-at);   }
+    .cm-s-default .cm-operator   { color: var(--text-2);   }
+    .cm-s-default .cm-bracket    { color: var(--text-2);   }
+    .cm-s-default .cm-punctuation{ color: var(--text-2);   }
 
     /* ─── Animations ─────────────────────────────────────────── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0);    }
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0);    }
     }
-
-    /* stagger cards */
-    .card:nth-child(1)  { animation-delay: 0ms;   }
-    .card:nth-child(2)  { animation-delay: 50ms;  }
-    .card:nth-child(3)  { animation-delay: 100ms; }
-    .card:nth-child(4)  { animation-delay: 150ms; }
-    .card:nth-child(5)  { animation-delay: 200ms; }
-    .card:nth-child(6)  { animation-delay: 250ms; }
-    .card:nth-child(7)  { animation-delay: 300ms; }
-    .card:nth-child(8)  { animation-delay: 350ms; }
 
     /* ─── Responsive ─────────────────────────────────────────── */
     @media (max-width: 600px) {
@@ -501,35 +396,189 @@
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect } = React;
+const { useState, useEffect, useRef } = React;
 
-const STORAGE_KEY = 'css_snippets_v1';
+const STORAGE_KEY_V2 = 'css_snippets_v2';
+const STORAGE_KEY_V1 = 'css_snippets_v1';
 
 const DEFAULT_SNIPPETS = [
   {
     id: 1,
-    title: 'Flexbox Center',
-    description: 'Center children horizontally & vertically',
+    title: 'Flexbox Centralizado',
+    description: 'Centraliza filhos horizontal e verticalmente',
     category: 'Layout',
-    code: `display: flex;\nalign-items: center;\njustify-content: center;`
+    code: `.container {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}`,
   },
   {
     id: 2,
-    title: 'Smooth Transition',
-    description: 'All-purpose transition shorthand',
-    category: 'Animation',
-    code: `transition: all 0.2s ease-in-out;`
+    title: 'Transição Suave',
+    description: 'Atalho de transição para uso geral',
+    category: 'Animação',
+    code: `.elemento {\n  transition: all 0.2s ease-in-out;\n}`,
   },
   {
     id: 3,
-    title: 'Text Ellipsis',
-    description: 'Truncate overflowing text with …',
-    category: 'Typography',
-    code: `overflow: hidden;\nwhite-space: nowrap;\ntext-overflow: ellipsis;`
+    title: 'Texto com Reticências',
+    description: 'Trunca o texto que ultrapassa o container',
+    category: 'Tipografia',
+    code: `.texto {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}`,
   },
 ];
 
-const CATEGORIES = ['All', 'Layout', 'Typography', 'Animation', 'Colors', 'Spacing', 'Other'];
+const CATEGORIES = [
+  { value: 'all',       label: 'Todos'       },
+  { value: 'Layout',    label: 'Layout'      },
+  { value: 'Tipografia',label: 'Tipografia'  },
+  { value: 'Animação',  label: 'Animação'    },
+  { value: 'Cores',     label: 'Cores'       },
+  { value: 'Espaçamento',label:'Espaçamento' },
+  { value: 'Outro',     label: 'Outro'       },
+];
+
+/* ── Helpers ─────────────────────────────────────────────── */
+
+function migrateV1(snippets) {
+  const catMap = { Typography:'Tipografia', Animation:'Animação', Colors:'Cores', Spacing:'Espaçamento', Other:'Outro' };
+  return snippets.map(s => {
+    const code = s.code.includes('{') ? s.code :
+      `.seletor {\n${s.code.split('\n').map(l=>'  '+l.trim()).filter(Boolean).join('\n')}\n}`;
+    const category = catMap[s.category] || s.category;
+    return { ...s, code, category };
+  });
+}
+
+function loadSnippets() {
+  try {
+    const v2 = localStorage.getItem(STORAGE_KEY_V2);
+    if (v2) return JSON.parse(v2);
+    const v1 = localStorage.getItem(STORAGE_KEY_V1);
+    if (v1) return migrateV1(JSON.parse(v1));
+  } catch {}
+  return DEFAULT_SNIPPETS;
+}
+
+function autoFormat(code) {
+  const t = code.trim();
+  if (!t) return t;
+  if (t.includes('{')) return t;
+  const lines = t.split('\n').map(l => {
+    l = l.trim();
+    if (!l) return '';
+    if (!l.endsWith(';') && !l.endsWith('{') && !l.endsWith('}')) l += ';';
+    return '  ' + l;
+  }).filter(Boolean).join('\n');
+  return `.seletor {\n${lines}\n}`;
+}
+
+/* ── Card syntax highlighter (line-by-line) ──────────────── */
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightLine(raw) {
+  const t = raw.trim();
+  if (!t) return esc(raw);
+
+  // comment
+  if (t.startsWith('/*') || t.startsWith('*') || t.startsWith('//'))
+    return `<span class="hl-com">${esc(raw)}</span>`;
+
+  // closing brace
+  if (t === '}')
+    return `<span class="hl-punc">${esc(raw)}</span>`;
+
+  // selector line (ends with {)
+  if (t.endsWith('{')) {
+    const e = esc(raw);
+    const idx = e.lastIndexOf('{');
+    return `<span class="hl-sel">${e.slice(0, idx).trimEnd()}</span> <span class="hl-punc">{</span>`;
+  }
+
+  // at-rule
+  if (t.startsWith('@'))
+    return `<span class="hl-at">${esc(raw)}</span>`;
+
+  // property: value;
+  const colonIdx = t.indexOf(':');
+  if (colonIdx > -1) {
+    const indent = raw.match(/^(\s*)/)[1];
+    const prop   = esc(t.slice(0, colonIdx));
+    let   rest   = esc(t.slice(colonIdx + 1).replace(/;$/, '').trim());
+    // color numbers+units
+    rest = rest.replace(/(#[0-9a-fA-F]{3,8})/g, '<span class="hl-str">$1</span>');
+    rest = rest.replace(/\b(-?\d+\.?\d*)(px|em|rem|%|vh|vw|s|ms|deg|fr|ch)?\b/g,
+      (m,n,u) => `<span class="hl-num">${n}${u||''}</span>`);
+    rest = rest.replace(/(&quot;[^&]*?&quot;)/g, '<span class="hl-str">$1</span>');
+    return `${indent}<span class="hl-prop">${prop}</span>: <span class="hl-val">${rest}</span>;`;
+  }
+
+  return esc(raw);
+}
+
+function highlightCSS(code) {
+  return code.split('\n').map(highlightLine).join('\n');
+}
+
+/* ── CSSPreview ──────────────────────────────────────────── */
+
+function CSSPreview({ code }) {
+  return (
+    <pre
+      className="card-code"
+      dangerouslySetInnerHTML={{ __html: highlightCSS(code) }}
+    />
+  );
+}
+
+/* ── CodeEditor (CodeMirror) ─────────────────────────────── */
+
+function CodeEditor({ value, onChange }) {
+  const taRef  = useRef(null);
+  const cmRef  = useRef(null);
+  const cbRef  = useRef(onChange);
+
+  useEffect(() => { cbRef.current = onChange; }, [onChange]);
+
+  useEffect(() => {
+    if (!taRef.current || cmRef.current) return;
+
+    cmRef.current = CodeMirror.fromTextArea(taRef.current, {
+      mode: 'css',
+      theme: 'default',
+      lineNumbers: true,
+      autoCloseBrackets: true,
+      tabSize: 2,
+      indentWithTabs: false,
+      lineWrapping: false,
+      extraKeys: {
+        Tab:       cm => cm.execCommand('indentMore'),
+        'Shift-Tab': cm => cm.execCommand('indentLess'),
+      },
+    });
+
+    cmRef.current.setValue(value);
+    cmRef.current.on('change', () => cbRef.current(cmRef.current.getValue()));
+
+    return () => {
+      cmRef.current?.toTextArea();
+      cmRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!cmRef.current) return;
+    if (cmRef.current.getValue() !== value) {
+      const cursor = cmRef.current.getCursor();
+      cmRef.current.setValue(value);
+      cmRef.current.setCursor(cursor);
+    }
+  }, [value]);
+
+  return <textarea ref={taRef} />;
+}
+
+/* ── SearchIcon ──────────────────────────────────────────── */
 
 function SearchIcon() {
   return (
@@ -540,34 +589,30 @@ function SearchIcon() {
   );
 }
 
-function App() {
-  const [snippets, setSnippets] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : DEFAULT_SNIPPETS;
-    } catch { return DEFAULT_SNIPPETS; }
-  });
+/* ── App ─────────────────────────────────────────────────── */
 
-  const [search, setSearch]     = useState('');
-  const [filter, setFilter]     = useState('All');
+function App() {
+  const [snippets,  setSnippets]  = useState(loadSnippets);
+  const [search,    setSearch]    = useState('');
+  const [filter,    setFilter]    = useState('all');
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing]   = useState(null);
-  const [form, setForm]         = useState({ title: '', description: '', category: 'Other', code: '' });
-  const [copiedId, setCopiedId] = useState(null);
+  const [editing,   setEditing]   = useState(null);
+  const [form,      setForm]      = useState({ title:'', description:'', category:'Outro', code:'' });
+  const [copiedId,  setCopiedId]  = useState(null);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(snippets));
+    localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(snippets));
   }, [snippets]);
 
   const openAdd = () => {
     setEditing(null);
-    setForm({ title: '', description: '', category: 'Other', code: '' });
+    setForm({ title:'', description:'', category:'Outro', code:'' });
     setShowModal(true);
   };
 
-  const openEdit = (s) => {
+  const openEdit = s => {
     setEditing(s.id);
-    setForm({ title: s.title, description: s.description, category: s.category, code: s.code });
+    setForm({ title:s.title, description:s.description, category:s.category, code:s.code });
     setShowModal(true);
   };
 
@@ -581,9 +626,10 @@ function App() {
     setShowModal(false);
   };
 
-  const remove = (id) => setSnippets(prev => prev.filter(s => s.id !== id));
+  const remove  = id  => setSnippets(prev => prev.filter(s => s.id !== id));
+  const format  = ()  => setForm(f => ({ ...f, code: autoFormat(f.code) }));
 
-  const copy = (snippet) => {
+  const copy = snippet => {
     navigator.clipboard.writeText(snippet.code).then(() => {
       setCopiedId(snippet.id);
       setTimeout(() => setCopiedId(null), 1800);
@@ -591,7 +637,7 @@ function App() {
   };
 
   const visible = snippets.filter(s => {
-    const matchCat    = filter === 'All' || s.category === filter;
+    const matchCat    = filter === 'all' || s.category === filter;
     const q           = search.toLowerCase();
     const matchSearch = !q
       || s.title.toLowerCase().includes(q)
@@ -604,7 +650,7 @@ function App() {
     <>
       <div className="hero">
         <h1>CSS Snippets</h1>
-        <p>Your personal library of reusable CSS codes.</p>
+        <p>Sua biblioteca pessoal de códigos CSS reutilizáveis.</p>
       </div>
 
       <div className="top-bar">
@@ -612,31 +658,29 @@ function App() {
           <SearchIcon />
           <input
             className="search-input"
-            placeholder="Search snippets…"
+            placeholder="Buscar snippets…"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
-        <button className="btn btn-primary" onClick={openAdd}>
-          + New Snippet
-        </button>
+        <button className="btn btn-primary" onClick={openAdd}>+ Novo Snippet</button>
       </div>
 
       <div className="filters">
         {CATEGORIES.map(c => (
           <button
-            key={c}
-            className={`filter-btn ${filter === c ? 'active' : ''}`}
-            onClick={() => setFilter(c)}
-          >{c}</button>
+            key={c.value}
+            className={`filter-btn ${filter === c.value ? 'active' : ''}`}
+            onClick={() => setFilter(c.value)}
+          >{c.label}</button>
         ))}
       </div>
 
       {visible.length === 0 ? (
         <div className="empty">
           <span className="empty-icon">✦</span>
-          <h3>{snippets.length === 0 ? 'No snippets yet' : 'Nothing found'}</h3>
-          <p>{snippets.length === 0 ? 'Add your first CSS snippet to get started.' : 'Try a different search or category.'}</p>
+          <h3>{snippets.length === 0 ? 'Nenhum snippet ainda' : 'Nenhum resultado'}</h3>
+          <p>{snippets.length === 0 ? 'Adicione seu primeiro snippet CSS para começar.' : 'Tente uma busca ou categoria diferente.'}</p>
         </div>
       ) : (
         <div className="grid">
@@ -645,21 +689,21 @@ function App() {
               <div className="card-header">
                 <div>
                   <div className="card-title">{s.title}</div>
-                  {s.description && <div className="card-description">{s.description}</div>}
+                  {s.description && <div className="card-desc">{s.description}</div>}
                 </div>
                 <span className="card-tag">{s.category}</span>
               </div>
               <div className="card-code-wrap">
-                <pre className="card-code">{s.code}</pre>
+                <CSSPreview code={s.code} />
               </div>
               <div className="card-footer">
-                <button className="btn btn-sm btn-danger-ghost" onClick={() => remove(s.id)}>Delete</button>
-                <button className="btn btn-sm btn-ghost" onClick={() => openEdit(s)}>Edit</button>
+                <button className="btn btn-sm btn-danger-ghost" onClick={() => remove(s.id)}>Excluir</button>
+                <button className="btn btn-sm btn-ghost" onClick={() => openEdit(s)}>Editar</button>
                 <button
                   className={`copy-btn ${copiedId === s.id ? 'copied' : ''}`}
                   onClick={() => copy(s)}
                 >
-                  {copiedId === s.id ? '✓ Copied' : 'Copy CSS'}
+                  {copiedId === s.id ? '✓ Copiado' : 'Copiar CSS'}
                 </button>
               </div>
             </div>
@@ -670,47 +714,51 @@ function App() {
       {showModal && (
         <div className="overlay" onClick={e => e.target === e.currentTarget && setShowModal(false)}>
           <div className="modal">
-            <div className="modal-title">{editing ? 'Edit Snippet' : 'New Snippet'}</div>
+            <div className="modal-title">{editing ? 'Editar Snippet' : 'Novo Snippet'}</div>
 
             <div className="field">
-              <label>Title</label>
+              <label>Título</label>
               <input
-                placeholder="e.g. Flexbox Center"
+                placeholder="Ex: Flexbox Centralizado"
                 value={form.title}
-                onChange={e => setForm(f => ({...f, title: e.target.value}))}
                 autoFocus
+                onChange={e => setForm(f => ({...f, title: e.target.value}))}
               />
             </div>
 
             <div className="field">
-              <label>Description</label>
+              <label>Descrição</label>
               <input
-                placeholder="Short description (optional)"
+                placeholder="Descrição curta (opcional)"
                 value={form.description}
                 onChange={e => setForm(f => ({...f, description: e.target.value}))}
               />
             </div>
 
             <div className="field">
-              <label>Category</label>
+              <label>Categoria</label>
               <select value={form.category} onChange={e => setForm(f => ({...f, category: e.target.value}))}>
-                {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c}>{c}</option>)}
+                {CATEGORIES.filter(c => c.value !== 'all').map(c => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
               </select>
             </div>
 
             <div className="field">
-              <label>CSS Code</label>
-              <textarea
-                placeholder="Paste your CSS here…"
+              <div className="field-header">
+                <span className="field-label">Código CSS</span>
+                <button className="btn-format" onClick={format}>Formatar automaticamente</button>
+              </div>
+              <CodeEditor
                 value={form.code}
-                onChange={e => setForm(f => ({...f, code: e.target.value}))}
+                onChange={code => setForm(f => ({...f, code}))}
               />
             </div>
 
             <div className="modal-actions">
-              <button className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancelar</button>
               <button className="btn btn-primary" onClick={save}>
-                {editing ? 'Save Changes' : 'Add Snippet'}
+                {editing ? 'Salvar' : 'Adicionar'}
               </button>
             </div>
           </div>
