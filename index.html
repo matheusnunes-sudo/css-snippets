@@ -219,7 +219,13 @@
       white-space: nowrap; flex-shrink: 0;
     }
 
-    .card-code-wrap { flex: 1; padding: 0 22px; overflow: hidden; }
+    .card-code-wrap {
+      flex: 1; padding: 6px 22px; overflow: hidden;
+      cursor: pointer; border-radius: 10px; margin: 0 10px;
+      transition: background .15s;
+    }
+    .card-code-wrap:hover { background: var(--accent-bg); }
+    .card-code-wrap.active { background: var(--accent-bg); }
 
     /* Card syntax highlight */
     .card-code {
@@ -251,6 +257,50 @@
     .copy-btn:hover  { background: var(--accent-b2); }
     .copy-btn:active { transform: scale(.96); }
     .copy-btn.copied { background: var(--success-bg); color: var(--success); }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.7); }
+      to   { opacity: 1; transform: scale(1);   }
+    }
+    .btn-delete { animation: popIn 160ms cubic-bezier(.34,1.56,.64,1) both; }
+
+    /* ─── Trash button ───────────────────────────────────────── */
+    .trash-btn {
+      position: relative;
+      padding: 13px 15px;
+      background: var(--bg-2); border: 1px solid var(--sep-2);
+      border-radius: var(--r-pill); cursor: pointer; color: var(--text-2);
+      display: flex; align-items: center;
+      transition: all .18s;
+    }
+    .trash-btn:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-bg); }
+    .trash-badge {
+      position: absolute; top: -5px; right: -5px;
+      min-width: 18px; height: 18px; padding: 0 4px;
+      background: var(--danger); color: #fff;
+      border-radius: 9px; font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font);
+    }
+
+    /* ─── Trash modal ────────────────────────────────────────── */
+    .trash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .trash-title  { font-size: 21px; font-weight: 700; letter-spacing: -0.03em; }
+    .trash-count  { color: var(--text-2); font-weight: 400; }
+
+    .trash-empty { text-align: center; padding: 40px 0; color: var(--text-2); }
+    .trash-empty span { font-size: 2rem; display: block; margin-bottom: 10px; }
+
+    .trash-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; margin-bottom: 8px; }
+
+    .trash-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 16px; background: var(--bg-2); border-radius: 12px;
+    }
+    .trash-item-name { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+    .trash-item-meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+    .trash-item-time { font-size: 12px; color: var(--text-3); }
+    .trash-item-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
     /* ─── Empty state ────────────────────────────────────────── */
     .empty { text-align: center; padding: 80px 24px; animation: fadeUp 600ms ease-out both; }
@@ -454,8 +504,24 @@
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo } = React;
 
-const STORAGE_KEY_V2 = 'css_snippets_v2';
-const STORAGE_KEY_V1 = 'css_snippets_v1';
+const STORAGE_KEY_V2    = 'css_snippets_v2';
+const STORAGE_KEY_V1    = 'css_snippets_v1';
+const STORAGE_KEY_TRASH = 'css_snippets_trash';
+
+function loadTrash() {
+  try { const t = localStorage.getItem(STORAGE_KEY_TRASH); return t ? JSON.parse(t) : []; }
+  catch { return []; }
+}
+
+function timeAgo(ts) {
+  const d = Date.now() - ts, m = Math.floor(d / 60000);
+  if (m < 1)  return 'agora mesmo';
+  if (m < 60) return `há ${m} min`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `há ${h}h`;
+  const days = Math.floor(h / 24);
+  return `há ${days} dia${days > 1 ? 's' : ''}`;
+}
 
 const DEFAULT_SNIPPETS = [
   {
@@ -645,6 +711,70 @@ function SearchIcon() {
   );
 }
 
+/* ── TrashIcon ───────────────────────────────────────────── */
+
+function TrashIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 4h12" />
+      <path d="M5.333 4V2.667A.667.667 0 0 1 6 2h4a.667.667 0 0 1 .667.667V4" />
+      <path d="M3.333 4l.667 9.333A.667.667 0 0 0 4.667 14h6.666a.667.667 0 0 0 .667-.667L12.667 4" />
+      <path d="M6.667 7.333v4M9.333 7.333v4" />
+    </svg>
+  );
+}
+
+/* ── TrashModal ──────────────────────────────────────────── */
+
+function TrashModal({ trash, onRestore, onDelete, onClear, onClose }) {
+  return (
+    <div className="overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal" style={{ maxWidth: '580px' }}>
+        <div className="trash-header">
+          <div className="trash-title">
+            Lixeira
+            {trash.length > 0 && <span className="trash-count"> · {trash.length}</span>}
+          </div>
+          {trash.length > 0 && (
+            <button className="btn-format" style={{ color: 'var(--danger)' }} onClick={onClear}>
+              Esvaziar lixeira
+            </button>
+          )}
+        </div>
+
+        {trash.length === 0 ? (
+          <div className="trash-empty">
+            <span>🗑️</span>
+            <p>A lixeira está vazia.</p>
+          </div>
+        ) : (
+          <div className="trash-list">
+            {trash.map(s => (
+              <div className="trash-item" key={s.id}>
+                <div>
+                  <div className="trash-item-name">{s.title}</div>
+                  <div className="trash-item-meta">
+                    <span className="card-tag" style={{ fontSize: '11px', padding: '2px 8px' }}>{s.category}</span>
+                    <span className="trash-item-time">{timeAgo(s.deletedAt)}</span>
+                  </div>
+                </div>
+                <div className="trash-item-actions">
+                  <button className="btn btn-sm btn-ghost" onClick={() => onRestore(s.id)}>Restaurar</button>
+                  <button className="btn btn-sm btn-danger-ghost" onClick={() => onDelete(s.id)}>Excluir</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="modal-actions">
+          <button className="btn btn-ghost" onClick={onClose}>Fechar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── CategoryCombobox ────────────────────────────────────── */
 
 function CategoryCombobox({ value, onChange, categories }) {
@@ -702,17 +832,25 @@ function CategoryCombobox({ value, onChange, categories }) {
 /* ── App ─────────────────────────────────────────────────── */
 
 function App() {
-  const [snippets,  setSnippets]  = useState(loadSnippets);
-  const [search,    setSearch]    = useState('');
-  const [filter,    setFilter]    = useState('all');
-  const [showModal, setShowModal] = useState(false);
-  const [editing,   setEditing]   = useState(null);
-  const [form,      setForm]      = useState({ title:'', description:'', category:'Outro', code:'' });
-  const [copiedId,  setCopiedId]  = useState(null);
+  const [snippets,     setSnippets]     = useState(loadSnippets);
+  const [trash,        setTrash]        = useState(loadTrash);
+  const [search,       setSearch]       = useState('');
+  const [filter,       setFilter]       = useState('all');
+  const [showModal,    setShowModal]    = useState(false);
+  const [showTrash,    setShowTrash]    = useState(false);
+  const [editing,      setEditing]      = useState(null);
+  const [form,         setForm]         = useState({ title:'', description:'', category:'Outro', code:'' });
+  const [copiedId,     setCopiedId]     = useState(null);
+  const [activeCardId, setActiveCardId] = useState(null);
+
+  useEffect(() => { localStorage.setItem(STORAGE_KEY_V2,    JSON.stringify(snippets)); }, [snippets]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEY_TRASH, JSON.stringify(trash));    }, [trash]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(snippets));
-  }, [snippets]);
+    const clear = e => { if (!e.target.closest('[data-card]')) setActiveCardId(null); };
+    document.addEventListener('click', clear);
+    return () => document.removeEventListener('click', clear);
+  }, []);
 
   const allCategories = useMemo(() => {
     const defaults = CATEGORIES.filter(c => c.value !== 'all').map(c => c.value);
@@ -747,8 +885,24 @@ function App() {
     setShowModal(false);
   };
 
-  const remove  = id  => setSnippets(prev => prev.filter(s => s.id !== id));
-  const format  = ()  => setForm(f => ({ ...f, code: autoFormat(f.code) }));
+  const remove = id => {
+    const snippet = snippets.find(s => s.id === id);
+    if (snippet) setTrash(prev => [{ ...snippet, deletedAt: Date.now() }, ...prev]);
+    setSnippets(prev => prev.filter(s => s.id !== id));
+    setActiveCardId(null);
+  };
+
+  const restore = id => {
+    const item = trash.find(s => s.id === id);
+    if (!item) return;
+    const { deletedAt, ...snippet } = item;
+    setSnippets(prev => [snippet, ...prev]);
+    setTrash(prev => prev.filter(s => s.id !== id));
+  };
+
+  const permanentDelete = id => setTrash(prev => prev.filter(s => s.id !== id));
+  const clearTrash      = ()  => setTrash([]);
+  const format          = ()  => setForm(f => ({ ...f, code: autoFormat(f.code) }));
 
   const copy = snippet => {
     navigator.clipboard.writeText(snippet.code).then(() => {
@@ -784,6 +938,10 @@ function App() {
             onChange={e => setSearch(e.target.value)}
           />
         </div>
+        <button className="trash-btn" onClick={() => setShowTrash(true)} title="Lixeira">
+          <TrashIcon />
+          {trash.length > 0 && <span className="trash-badge">{trash.length}</span>}
+        </button>
         <button className="btn btn-primary" onClick={openAdd}>+ Novo Snippet</button>
       </div>
 
@@ -806,7 +964,7 @@ function App() {
       ) : (
         <div className="grid">
           {visible.map(s => (
-            <div className="card" key={s.id}>
+            <div className="card" key={s.id} data-card={s.id}>
               <div className="card-header">
                 <div>
                   <div className="card-title">{s.title}</div>
@@ -814,11 +972,16 @@ function App() {
                 </div>
                 <span className="card-tag">{s.category}</span>
               </div>
-              <div className="card-code-wrap">
+              <div
+                className={`card-code-wrap ${activeCardId === s.id ? 'active' : ''}`}
+                onClick={e => { e.stopPropagation(); setActiveCardId(activeCardId === s.id ? null : s.id); }}
+              >
                 <CSSPreview code={s.code} />
               </div>
               <div className="card-footer">
-                <button className="btn btn-sm btn-danger-ghost" onClick={() => remove(s.id)}>Excluir</button>
+                {activeCardId === s.id && (
+                  <button className="btn btn-sm btn-danger-ghost btn-delete" onClick={() => remove(s.id)}>Excluir</button>
+                )}
                 <button className="btn btn-sm btn-ghost" onClick={() => openEdit(s)}>Editar</button>
                 <button
                   className={`copy-btn ${copiedId === s.id ? 'copied' : ''}`}
@@ -830,6 +993,16 @@ function App() {
             </div>
           ))}
         </div>
+      )}
+
+      {showTrash && (
+        <TrashModal
+          trash={trash}
+          onRestore={restore}
+          onDelete={permanentDelete}
+          onClear={clearTrash}
+          onClose={() => setShowTrash(false)}
+        />
       )}
 
       {showModal && (
