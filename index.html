@@ -1042,7 +1042,6 @@ function App() {
     const snippet = snippets.find(s => s.id === id);
     if (snippet) setTrash(prev => [{ ...snippet, deletedAt: Date.now() }, ...prev]);
     setSnippets(prev => prev.filter(s => s.id !== id));
-    setActiveCardId(null);
   };
 
   const restore = id => {
